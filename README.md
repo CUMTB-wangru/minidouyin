@@ -1,5 +1,5 @@
 
-# 抖音极简版
+# MINIDOUYIN
 <!-- PROJECT SHIELDS -->
 
 [![Contributors][contributors-shield]][contributors-url]
