@@ -111,7 +111,7 @@ func FillCommentListFields(comments *[]*models.Comment) error {
 
 每次为视频点赞都会在数据库的user_favor_videos表中加入用户的id和视频的id，很明显is_favorite字段是针对每个用户来判断的，而我所设计的数据库中的videos表也是包含这个字段的，但这个字段很明显不能直接进行复用，而是需要每次判断用户和此视频的关系来重新更新。
 
-这个更新过程放入util包的填充函数中即可，为了点赞过程的迅速响应，我采取了nosql的方式存储了这个点赞的映射，也就是userId和videoId的映射，也就是用nosql代替了这个中间表的功效。
+这个更新过程放入util包的填充函数中即可，为了点赞过程的迅速响应，我采取了Redis的方式存储了这个点赞的映射，也就是userId和videoId的映射，也就是用Redis代替了这个中间表的功效。
 
 具体代码逻辑在cache包内。
 
@@ -119,7 +119,7 @@ func FillCommentListFields(comments *[]*models.Comment) error {
 
 #### 视频的保存
 
-在本地建立static文件夹存储视频和封面图片。
+在本地建立static文件夹存储视频和封面图片
 
 具体逻辑如下：
 
