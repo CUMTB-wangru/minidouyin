@@ -1,60 +1,9 @@
 
-# MINIDOUYIN
+# 抖音极简版
 <!-- PROJECT SHIELDS -->
-
-[![Contributors][contributors-shield]][contributors-url]
-[![Forks][forks-shield]][forks-url]
-[![Stargazers][stars-shield]][stars-url]
-[![Issues][issues-shield]][issues-url]
-[![MIT License][license-shield]][license-url]
-
-<!-- links -->
-[your-project-path]:ACking-you/byte_douyin_project
-[contributors-shield]: https://img.shields.io/github/contributors/ACking-you/byte_douyin_project.svg?style=flat-square
-[contributors-url]: https://github.com/ACking-you/byte_douyin_project/graphs/contributors
-[forks-shield]: https://img.shields.io/github/forks/ACking-you/byte_douyin_project.svg?style=flat-square
-[forks-url]: https://github.com/ACking-you/byte_douyin_project/network/members
-[stars-shield]: https://img.shields.io/github/stars/ACking-you/byte_douyin_project.svg?style=flat-square
-[stars-url]: https://github.com/ACking-you/byte_douyin_project/stargazers
-[issues-shield]: https://img.shields.io/github/issues/ACking-you/byte_douyin_project.svg?style=flat-square
-[issues-url]: https://img.shields.io/github/issues/ACking-you/byte_douyin_project.svg
-[license-shield]: https://img.shields.io/github/license/ACking-you/byte_douyin_project?style=flat-square
-[license-url]: https://github.com/ACking-you/byte_douyin_project/blob/master/LICENSE
-
-
-* [完整项目文档] https://vfchdrh6q6.feishu.cn/docx/doxcnwTuJ3CbOFDhQan4EQBrKWg
-* [数据库说明](#数据库说明)
-    * [数据库关系说明](#数据库关系说明)
-    * [数据库建立说明](#数据库建立说明)
-* [架构说明](#架构说明)
-    * [各模块代码详细说明](#各模块代码详细说明)
-        * [Handlers](#handlers)
-        * [Service](#service)
-        * [Models](#models)
-* [遇到的问题及对应解决方案](#遇到的问题及对应解决方案)
-    * [返回json数据的完整性和前端要求的一致性](#返回json数据的完整性和前端要求的一致性)
-    * [is\_favorite和is\_follow字段的更新](#is_favorite和is_follow字段的更新)
-    * [视频的保存和封面的切片](#视频的保存和封面的切片)
-        * [视频的保存](#视频的保存)
-        * [封面的截取](#封面的截取)
-* [可改进的地方](#可改进的地方)
-* [项目运行](#项目运行)
-
 ## 数据库说明
 
-
-![database.png](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/892fbbe46695467ebe4fb4a12ebd412e~tplv-k3u1fbpfcp-watermark.image?)
-
-> 单纯看上面的图会感觉很混乱，现在我们来将关系拆解。
-
-### 数据库关系说明
-
-**关系图如下：**
-
-
-![database_relation.png](https://p6-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/f08918db1ea84126bc21d23fe9401a75~tplv-k3u1fbpfcp-watermark.image?)
-
-> 所有的表都有自己的id主键为唯一的标识。
+> 所有的表都有自己的id主键为唯一的标识，6张表，user_relations和user_favor_videos 是中间表。
 
 user_logins：存下用户的用户名和密码
 
@@ -112,59 +61,6 @@ func InitDB() {
 2. 进入UserLoginHandler函数逻辑，获取username，并调用gin.Context的Get方法得到中间件设置的password。再调用service层的QueryUserLogin函数。
 3. 进入QueryUserLogin函数逻辑，执行三个过程：checkNum，prepareData，packData。也就是检查参数、准备数据、打包数据，准备数据的过程中会调用models层的UserLoginDAO。
 4. 进入UserLoginDAO的逻辑，执行最终的数据库请求过程，返回给上层。
-
-### 各模块代码详细说明
-
-我开发的过程中是以单个函数为单个文件进行开发，所以代码会比较长，故我根据数据库内的模型对函数文件进行了如下分包：
-
-
-![handlers.png](https://p1-juejin.byteimg.com/tos-cn-i-k3u1fbpfcp/6dc222793d6f4038b1bf2435053bfee4~tplv-k3u1fbpfcp-watermark.image?)
-
-service层的分包也是一样的。
-
-#### Handlers
-
-对于handlers层级的所有函数实现有如下规范：
-
-所有的逻辑由代理对象进行，完成以下两个逻辑
-
-1. 解析得到参数。
-2. 开始调用下层逻辑。
-
-例如一个关注动作触发的逻辑：
-
-```go
-NewProxyPostFollowAction().Do()
-//其中Do主要包含以下两个逻辑，对应两个方法
-p.parseNum() //解析参数
-p.startAction() //开始调用下层逻辑
-```
-
-#### Service
-
-对于service层级的函数实现由如下规范：
-
-同样由一个代理对象进行，完成以下三个或两个逻辑
-
-当上层需要返回数据信息，则进行三个逻辑：
-
-1. 检查参数。
-2. 准备数据。
-3. 打包数据。
-
-当上层不需要返回数据信息，则进行两个逻辑：
-
-1. 检查参数。
-2. 执行上层指定的动作。
-
-例如关注动作在service层的逻辑属于第二类：
-
-```go
-NewPostFollowActionFlow(...).Do()
-//Do中包含以下两个逻辑
-p.checkNum() //检查参数
-p.publish() //执行动作
-```
 
 #### Models
 
@@ -267,10 +163,9 @@ func (v *Video2Image) ExecCommand(cmd string) error {
 
 ## 可改进的地方
 
-1. 写到后面发现很多mysql的数据可以用redis优化。
+1. 项目结构可以调整，本项目代码量不是很巨大，可以将service和handel合并service，大致分为model专门操作数据库模型，service负责、打包好前端需要的数据，通过GIN的Context返回给前端。
 2. 很多执行逻辑可以通过并行优化。
 3. 路由分组可以更为详实。
-4. ...
 
 ## 项目运行
 
@@ -281,7 +176,7 @@ func (v *Video2Image) ExecCommand(cmd string) error {
 * mysql 5.7及以上
 * redis 5.0.14及以上
 * ffmepg（已放入lib自带，用于对视频切片得到封面
-* 需要gcc环境（主要用于cgo，windows请将mingw-w64设置到环境变量
+* 需要gcc环境（主要用于cgo，windows请将mingw-w64设置到环境变量）
 
 **运行需要更改配置**：
 
@@ -305,6 +200,6 @@ func (v *Video2Image) ExecCommand(cmd string) error {
 **运行所需命令**：
 
 ```shell
-cd .\byte_douyin_project\
+cd .\minidouyin\
 go run main.go
 ```
